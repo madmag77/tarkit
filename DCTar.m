@@ -308,11 +308,15 @@ static const char template_header[] = {
                 NSString *name = [self nameForObject:tarObject atOffset:location];
                 NSString *filePath = [path stringByAppendingPathComponent:name]; // Create a full path from the name
                 
-                unsigned long long size = [self sizeForObject:tarObject atOffset:location];
+                 NSString *locPath = [filePath stringByDeletingLastPathComponent];
+                if (![[NSFileManager defaultManager] fileExistsAtPath:locPath])
+                    [[NSFileManager defaultManager] createDirectoryAtPath:locPath withIntermediateDirectories:YES attributes:nil error:&error];
+
+		   unsigned long long size = [self sizeForObject:tarObject atOffset:location];
                 //NSLog(@"file created: %@",name);
                 
                 if(size == 0) {
-                    [@"" writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:error];
+                    [@"" writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
                 }
                 
                 blockCount += (size - 1) / TAR_BLOCK_SIZE + 1; // size/TAR_BLOCK_SIZE rounded up
